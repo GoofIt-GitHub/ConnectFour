@@ -1,0 +1,6 @@
+name: ConnectFourPlugin
+version: 1.0
+main: com.matthew.plugin.connectfour.Connectfour
+api-version: 1.8.8
+commands:
+  connectfour:
