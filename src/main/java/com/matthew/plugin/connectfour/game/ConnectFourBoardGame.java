@@ -1,6 +1,8 @@
-package com.matthew.plugin.connectfour.apis;
+package com.matthew.plugin.connectfour.game;
 
-import com.matthew.plugin.connectfour.Connectfour;
+import com.matthew.plugin.connectfour.ConnectFourPlugin;
+import com.matthew.plugin.connectfour.modules.game.GameModule;
+import com.matthew.plugin.connectfour.modules.regions.structure.Cuboid;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -39,7 +41,7 @@ public class ConnectFourBoardGame {
         turn = player1;
 
         players.put(player1, player2);
-        ConnectFourManager.getConnectFourBoards().add(this);
+        GameModule.getConnectFourBoards().add(this);
         createBoard(player1.getLocation());
     }
 
@@ -565,11 +567,11 @@ public class ConnectFourBoardGame {
                     block.setType(Material.AIR);
                 }
                 players.remove(player1);
-                ConnectFourManager.getConnectFourBoards().remove(ConnectFourManager.getConnectFourBoard(player1));
+                GameModule.getConnectFourBoards().remove(GameModule.getConnectFourBoard(player1));
                 cancel();
             }
 
-        }.runTaskTimer(Connectfour.getInstance(), 40L, 0L);
+        }.runTaskTimer(ConnectFourPlugin.getInstance(), 40L, 0L);
 
     }
 }

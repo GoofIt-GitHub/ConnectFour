@@ -1,7 +1,7 @@
-package com.matthew.plugin.connectfour.gamefunction.events;
+package com.matthew.plugin.connectfour.game.listeners;
 
-import com.matthew.plugin.connectfour.apis.ConnectFourBoardGame;
-import com.matthew.plugin.connectfour.apis.ConnectFourManager;
+import com.matthew.plugin.connectfour.game.ConnectFourBoardGame;
+import com.matthew.plugin.connectfour.modules.game.GameModule;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -30,10 +30,10 @@ public class PlayerInteractListener implements Listener {
         if(player.getItemInHand().getType().equals(Material.AIR)) {
             if(e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 Block block = e.getClickedBlock();
-                if(ConnectFourManager.getConnectFourBoard(player) != null) {
-                    ConnectFourBoardGame game = ConnectFourManager.getConnectFourBoard(player);
+                if(GameModule.getConnectFourBoard(player) != null) {
+                    ConnectFourBoardGame game = GameModule.getConnectFourBoard(player);
                     if(game.getTurn().equals(player)) {
-                        if (block.getType().equals(Material.QUARTZ_BLOCK) && ConnectFourManager.getConnectFourBoard(player).getBottomBlocks().contains(block)) {
+                        if (block.getType().equals(Material.QUARTZ_BLOCK) && GameModule.getConnectFourBoard(player).getBottomBlocks().contains(block)) {
                             game.placeBlock(player, block);
                         }
                     } else {

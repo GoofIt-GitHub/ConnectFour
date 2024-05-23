@@ -1,10 +1,12 @@
-package com.matthew.plugin.connectfour.apis;
+package com.matthew.plugin.connectfour.modules.game;
 
+import com.matthew.plugin.connectfour.apis.ServerModule;
+import com.matthew.plugin.connectfour.game.ConnectFourBoardGame;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 
-public class ConnectFourManager {
+public class GameModule implements ServerModule {
 
     private static ArrayList<ConnectFourBoardGame> connectFourBoards;
 
@@ -14,9 +16,8 @@ public class ConnectFourManager {
      *
      * Games are placed in the arraylist upon execution of the connect four command to start the game
      */
-    public ConnectFourManager() {
-        connectFourBoards = new ArrayList<>();
-
+    public GameModule() {
+        setup();
     }
 
     /**
@@ -58,5 +59,15 @@ public class ConnectFourManager {
             }
         }
         return false;
+    }
+
+    @Override
+    public void setup() {
+        connectFourBoards = new ArrayList<>();
+    }
+
+    @Override
+    public void teardown() {
+        connectFourBoards.clear();
     }
 }

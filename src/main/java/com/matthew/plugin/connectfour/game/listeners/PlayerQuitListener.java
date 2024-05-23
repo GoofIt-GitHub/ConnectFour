@@ -1,7 +1,7 @@
-package com.matthew.plugin.connectfour.gamefunction.events;
+package com.matthew.plugin.connectfour.game.listeners;
 
-import com.matthew.plugin.connectfour.apis.ConnectFourBoardGame;
-import com.matthew.plugin.connectfour.apis.ConnectFourManager;
+import com.matthew.plugin.connectfour.game.ConnectFourBoardGame;
+import com.matthew.plugin.connectfour.modules.game.GameModule;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,8 +21,8 @@ public class PlayerQuitListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent e) {
 
         Player player = e.getPlayer();
-        if(ConnectFourManager.getConnectFourBoard(player) != null) {
-            ConnectFourBoardGame game = ConnectFourManager.getConnectFourBoard(player);
+        if(GameModule.getConnectFourBoard(player) != null) {
+            ConnectFourBoardGame game = GameModule.getConnectFourBoard(player);
 
             if(player.equals(game.getPlayer1())) {
                 game.getPlayer2().sendMessage(ChatColor.BLUE + ">> " + ChatColor.GRAY + ChatColor.BOLD + "Game stopped");

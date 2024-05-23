@@ -1,7 +1,7 @@
-package com.matthew.plugin.connectfour.gamefunction.commands;
+package com.matthew.plugin.connectfour.modules.manager.commands;
 
-import com.matthew.plugin.connectfour.apis.ConnectFourBoardGame;
-import com.matthew.plugin.connectfour.apis.ConnectFourManager;
+import com.matthew.plugin.connectfour.game.ConnectFourBoardGame;
+import com.matthew.plugin.connectfour.modules.game.GameModule;
 import org.bukkit.Bukkit;
 
 import org.bukkit.ChatColor;
@@ -29,10 +29,10 @@ public class ConnectFourCommand implements CommandExecutor {
             if (args.length == 1) {
                 Player target = Bukkit.getPlayerExact(args[0]);
                 if(!target.equals(player)) {
-                    if (ConnectFourManager.getConnectFourBoard(player) == null) {
+                    if (GameModule.getConnectFourBoard(player) == null) {
                         if (target.isOnline()) {
-                            if (!ConnectFourManager.isPlaying(target)) {
-                                ConnectFourManager.getConnectFourBoards().add(new ConnectFourBoardGame(player, target));
+                            if (!GameModule.isPlaying(target)) {
+                                GameModule.getConnectFourBoards().add(new ConnectFourBoardGame(player, target));
                             } else {
                                 player.sendMessage(ChatColor.BLUE + ">> " + ChatColor.GOLD + target.getName() + ChatColor.GRAY + " is currently in a game");
                             }

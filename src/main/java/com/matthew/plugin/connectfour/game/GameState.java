@@ -1,4 +1,4 @@
-package com.matthew.plugin.connectfour.gamefunction;
+package com.matthew.plugin.connectfour.game;
 
 public enum GameState {
 
