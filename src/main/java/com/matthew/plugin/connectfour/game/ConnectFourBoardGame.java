@@ -511,16 +511,14 @@ public class ConnectFourBoardGame {
                     if(checked.getRelative(BlockFace.UP).getType().equals(Material.AIR)) {
                         if(players.containsKey(player)) {
                             Block newBlock = checked.getRelative(BlockFace.UP);
-                            newBlock.setType(Material.STAINED_CLAY);
-                            newBlock.setData((byte) 4);
+                            newBlock.setType(Material.RED_WOOL);
                             origin = newBlock;
                             turn = player2;
                             player2.sendMessage(ChatColor.BLUE + ">> " + ChatColor.WHITE + ChatColor.BOLD + "Your turn");
 
                         } else if(players.containsValue(player)) {
                             Block newBlock = checked.getRelative(BlockFace.UP);
-                            newBlock.setType(Material.STAINED_CLAY);
-                            newBlock.setData((byte) 14);
+                            newBlock.setType(Material.YELLOW_WOOL);
                             origin = newBlock;
                             turn = player1;
                             player1.sendMessage(ChatColor.BLUE + ">> " + ChatColor.WHITE + ChatColor.BOLD + "Your turn");
