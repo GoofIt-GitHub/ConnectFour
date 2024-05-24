@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE project>
+<project name="ConnectFour" default="Build">
+    <property name="outputDir" value="C:/Users/mm20c/Desktop/Minecourse 1.19.4/plugins" />
+    <target name="Build">
+        <jar jarfile="${outputDir}/${ant.project.name}.jar" basedir="./target/classes" includes="**/*">
+        </jar>
+    </target>
+</project>
