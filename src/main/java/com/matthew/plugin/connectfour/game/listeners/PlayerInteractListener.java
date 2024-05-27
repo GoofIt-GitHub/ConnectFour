@@ -30,10 +30,10 @@ public class PlayerInteractListener implements Listener {
         if(player.getItemInHand().getType().equals(Material.AIR)) {
             if(e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 Block block = e.getClickedBlock();
-                if(GameModule.getConnectFourBoard(player) != null) {
-                    ConnectFourBoardGame game = GameModule.getConnectFourBoard(player);
+                if(GameModule.getGame(player) != null) {
+                    ConnectFourBoardGame game = GameModule.getGame(player);
                     if(game.getTurn().equals(player)) {
-                        if (block.getType().equals(Material.QUARTZ_BLOCK) && GameModule.getConnectFourBoard(player).getBottomBlocks().contains(block)) {
+                        if (block.getType().equals(Material.QUARTZ_BLOCK) && GameModule.getGame(player).getBottomBlocks().contains(block)) {
                             game.placeBlock(player, block);
                         }
                     } else {

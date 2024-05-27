@@ -21,8 +21,8 @@ public class PlayerQuitListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent e) {
 
         Player player = e.getPlayer();
-        if(GameModule.getConnectFourBoard(player) != null) {
-            ConnectFourBoardGame game = GameModule.getConnectFourBoard(player);
+        if(GameModule.getGame(player) != null) {
+            ConnectFourBoardGame game = GameModule.getGame(player);
 
             if(player.equals(game.getPlayer1())) {
                 game.getPlayer2().sendMessage(ChatColor.BLUE + ">> " + ChatColor.GRAY + ChatColor.BOLD + "Game stopped");

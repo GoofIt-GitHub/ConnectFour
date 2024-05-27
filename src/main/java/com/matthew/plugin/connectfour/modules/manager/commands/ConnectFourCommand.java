@@ -29,10 +29,10 @@ public class ConnectFourCommand implements CommandExecutor {
             if (args.length == 1) {
                 Player target = Bukkit.getPlayerExact(args[0]);
                 if(!target.equals(player)) {
-                    if (GameModule.getConnectFourBoard(player) == null) {
+                    if (GameModule.getGame(player) == null) {
                         if (target.isOnline()) {
                             if (!GameModule.isPlaying(target)) {
-                                GameModule.getConnectFourBoards().add(new ConnectFourBoardGame(player, target));
+                                GameModule.getGames().add(new ConnectFourBoardGame(player, target));
                             } else {
                                 player.sendMessage(ChatColor.BLUE + ">> " + ChatColor.GOLD + target.getName() + ChatColor.GRAY + " is currently in a game");
                             }

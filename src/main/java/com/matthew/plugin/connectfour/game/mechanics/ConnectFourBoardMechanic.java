@@ -12,11 +12,7 @@ import org.bukkit.entity.Player;
 
 public class ConnectFourBoardMechanic extends ConnectFourBoard {
 
-    private Player turn;
-
     private Player winner;
-
-    private GameState state;
 
     public ConnectFourBoardMechanic(final Player player1, final Player player2) {
         super(player1, player2);
@@ -106,6 +102,7 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
         getTopBlocks().clear();
 
         // Release any allocated resources associated with the region
+        region.getBlocks().clear();
         region = null;
     }
 
