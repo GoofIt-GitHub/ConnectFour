@@ -1,4 +1,4 @@
-package com.matthew.plugin.connectfour.modules.world.structure;
+package com.matthew.plugin.connectfour.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

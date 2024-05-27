@@ -5,7 +5,6 @@ import com.matthew.plugin.connectfour.modules.manager.ServerModuleManager;
 import com.matthew.plugin.connectfour.modules.manager.commands.ConnectFourCommand;
 import com.matthew.plugin.connectfour.game.listeners.PlayerInteractListener;
 import com.matthew.plugin.connectfour.game.listeners.PlayerQuitListener;
-import com.matthew.plugin.connectfour.modules.regions.RegionModule;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -19,7 +18,7 @@ public final class ConnectFourPlugin extends JavaPlugin {
     public void onEnable() {
         moduleManager = ServerModuleManager.getInstance();
         moduleManager.registerModule(new GameModule())
-                .registerModule(new RegionModule());
+                .registerModule(new BoardModule());
 
 
         /*

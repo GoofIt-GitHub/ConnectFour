@@ -1,8 +1,9 @@
 package com.matthew.plugin.connectfour.game;
 
 import com.matthew.plugin.connectfour.ConnectFourPlugin;
+import com.matthew.plugin.connectfour.game.mechanics.ConnectFourBoardMechanic;
 import com.matthew.plugin.connectfour.modules.game.GameModule;
-import com.matthew.plugin.connectfour.modules.regions.structure.Cuboid;
+import com.matthew.plugin.connectfour.utils.Cuboid;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 
 public class ConnectFourBoardGame {
 
+    private final ConnectFourBoardMechanic mechanic;
     private final HashMap<Player, Player> players;
     private ArrayList<Block> bottomBlocks;
 
