@@ -16,6 +16,8 @@ public final class ConnectFourPlugin extends JavaPlugin {
     public void onEnable() {
         final ServerModuleManager moduleManager = ServerModuleManager.getInstance();
         moduleManager.registerModule(new GameModule());
+
+        moduleManager.setup();
     }
 
     @Override

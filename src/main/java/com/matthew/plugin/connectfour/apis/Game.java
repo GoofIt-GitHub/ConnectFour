@@ -1,26 +1,29 @@
 package com.matthew.plugin.connectfour.apis;
 
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
 public interface Game {
 
-    List<Player> getPlayers();
+    /**
+     * Start game and allocate necessary resources
+     */
+    void startGame();
 
     /**
-     * Get the winner of the game
-     *
-     * @return the winner
+     * End game and release any additionally allocated resources
      */
-    Player getWinner();
+    void stopGame();
 
     /**
-     * Get whose turn it is to place down a blocks
+     * TODO: Comment
      *
-     * @return whoever turn it is
+     * @param player - Bukkit Player who is currently in the game and is attempting to place a block
+     * @param blockClicked - Bottom row block that was clicked to designate which column the block is to attempt to be placed
      */
-    Player getTurn();
+    void placeBlock(Player player, Block blockClicked);
 
     /**
      * Send a message to the players in the same game
@@ -29,12 +32,24 @@ public interface Game {
      */
     void sendMessage(String message);
 
-
-    void startGame();
+    /**
+     * Get all players currently playing the game. Assuming players is not null, there will always be 2
+     *
+     * @return list of players in the game
+     */
+    List<Player> getPlayers();
 
     /**
-     * End the game by removing the board after 2 seconds so the player who lost can see how they lost > remove the players
-     * from the players hashmap > remove the game from the ConnectFourManager's boards list
+     * Get the winner of the game
+     *
+     * @return a Bukkit Player representing the winner of the game
      */
-    void stopGame();
+    Player getWinner();
+
+    /**
+     * Get whose turn it is to place down a block
+     *
+     * @return a Bukkit Player representing the player who is allowed to make their move
+     */
+    Player getTurn();
 }

@@ -38,6 +38,21 @@ public class ConnectFourBoardGame implements Game {
     }
 
     @Override
+    public void placeBlock(Player player, Block blockClicked) {
+        this.mechanic.placeBlock(player, blockClicked);
+    }
+
+    /**
+     * Send a message to the players in the same game
+     *
+     * @param message - message for the players which will display in chat
+     */
+    @Override
+    public void sendMessage(String message) {
+        this.mechanic.sendMessage(message);
+    }
+
+    @Override
     public List<Player> getPlayers() {
         return this.mechanic.getPlayers();
     }
@@ -60,18 +75,6 @@ public class ConnectFourBoardGame implements Game {
     @Override
     public Player getTurn() {
         return this.mechanic.getTurn();
-    }
-
-    /**
-     * Send a message to the players in the same game
-     *
-     * @param message - message for the players which will display in chat
-     */
-    @Override
-    public void sendMessage(String message) {
-        for (Player player : getPlayers()) {
-            player.sendMessage(message);
-        }
     }
 
     @Override

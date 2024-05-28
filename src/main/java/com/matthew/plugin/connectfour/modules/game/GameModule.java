@@ -36,7 +36,6 @@ public class GameModule implements ServerModule {
      * @return the connectFourBoards arraylist holding the running games
      */
     public ArrayList<ConnectFourBoardGame> getGames() {
-
         return connectFourGames;
     }
 
@@ -47,9 +46,8 @@ public class GameModule implements ServerModule {
      * @return the game the player is currently in, if any. If not then return null
      */
     public ConnectFourBoardGame getGame(Player player) {
-
         for(ConnectFourBoardGame game: connectFourGames) {
-            if(game.getPlayers().containsKey(player) || game.getPlayers().containsValue(player)) {
+            if(game.getPlayers().contains(player)) {
                 return game;
             }
         }
@@ -64,7 +62,7 @@ public class GameModule implements ServerModule {
      */
     public boolean isPlaying(Player player) {
         for(ConnectFourBoardGame game: connectFourGames) {
-            if(game.getPlayers().containsValue(player) || game.getPlayers().containsKey(player)) {
+            if(game.getPlayers().contains(player)) {
                 return true;
             }
         }

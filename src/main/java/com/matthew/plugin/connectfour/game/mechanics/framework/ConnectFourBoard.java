@@ -1,6 +1,5 @@
 package com.matthew.plugin.connectfour.game.mechanics.framework;
 
-import com.matthew.plugin.connectfour.utils.Cuboid;
 import com.matthew.plugin.connectfour.utils.DirectionUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -8,9 +7,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -49,6 +46,11 @@ public abstract class ConnectFourBoard {
     public List<Block> getTopBlocks() {
         return this.topBlocks;
     }
+
+    public BlockFace getDirection() {
+        return direction;
+    }
+
 
     /**
      * Create the ConnectFour game's playable board (a 7x8 board) starting with the bottom of the board then generating the top >
@@ -89,9 +91,4 @@ public abstract class ConnectFourBoard {
                 .collect(Collectors.toList())
         );
     }
-
-    public BlockFace getDirection() {
-        return direction;
-    }
-
 }

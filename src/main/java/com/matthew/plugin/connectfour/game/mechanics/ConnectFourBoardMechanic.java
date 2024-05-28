@@ -134,7 +134,18 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
         }
     }
 
-    public boolean checkWinner() {
+    /**
+     * Send a message to the players in the same game
+     *
+     * @param message - message for the players which will display in chat
+     */
+    public void sendMessage(String message) {
+        for (Player player : getPlayers()) {
+            player.sendMessage(message);
+        }
+    }
+
+    private boolean checkWinner() {
         for (Block block : getBottomBlocks()) {
 
             // Check in directions based on the orientation of the board
