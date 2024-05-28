@@ -14,9 +14,15 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
 
     private Player winner;
 
+    private Cuboid region;
+
     public ConnectFourBoardMechanic(final Player player1, final Player player2) {
         super(player1, player2);
         setup();
+    }
+
+    public Cuboid getRegion() {
+        return this.region;
     }
 
     @Override

@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ConnectFourBoardGame {
 
@@ -25,8 +26,6 @@ public class ConnectFourBoardGame {
     private final Player player2;
 
     private Player turn;
-
-    private Cuboid region;
 
     private Player winner;
 
@@ -45,8 +44,7 @@ public class ConnectFourBoardGame {
         this.mechanic = new ConnectFourBoardMechanic(player1, player2);
         this.player1 = mechanic.getPlayers().get(0);
         this.player2 = mechanic.getPlayers().get(1);
-
-        this.module.
+        this.winner = null;
     }
 
     public List<Player> getPlayers() {
@@ -141,13 +139,13 @@ public class ConnectFourBoardGame {
                 }
             }
             //Check if there is a winner
-            if(checkForWinner()) {
+            if(mechanic.checkWinner()) {
                     sendMessage(ChatColor.BLUE + ">> " + ChatColor.YELLOW + ChatColor.BOLD + winner.getName() + ChatColor.GRAY + " has won");
                     endGame();
             } else {
                 //Check if there is room on the board for another play
                 int availablePlays = 0;
-                for (Block b : region.getBlocks()) {
+                for (Block b : mechanic.getRegion().getBlocks()) {
                     if (b.getType().equals(Material.AIR)) {
                         availablePlays++;
                     }
@@ -158,6 +156,12 @@ public class ConnectFourBoardGame {
                 }
             }
         }
+    }
+
+    public void startGame() {
+        this.turn = player1;
+        this.mechanic.spawnBoard();
+        this.module.addGame(this);
     }
 
     /**
@@ -178,6 +182,23 @@ public class ConnectFourBoardGame {
             }
 
         }.runTaskTimer(ConnectFourPlugin.getInstance(), 40L, 0L);
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
 
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ConnectFourBoardGame check = (ConnectFourBoardGame) o;
+        return Objects.equals(player1, check.player1) && Objects.equals(player2, check.player2);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(player1, player2);
     }
 }

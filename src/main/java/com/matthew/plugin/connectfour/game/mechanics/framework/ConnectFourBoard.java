@@ -32,7 +32,6 @@ public abstract class ConnectFourBoard {
      */
     private BlockFace direction;
 
-    protected Cuboid region;
 
     public ConnectFourBoard(Player player1, Player player2) {
         players = new ArrayList<>(Arrays.asList(player1, player2));
@@ -108,4 +107,5 @@ public abstract class ConnectFourBoard {
     public BlockFace getDirection() {
         return direction;
     }
+
 }

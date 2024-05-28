@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class GameModule implements ServerModule {
 
-    private ArrayList<ConnectFourBoardGame> connectFourBoards;
+    private ArrayList<ConnectFourBoardGame> connectFourGames;
 
     /**
      * Construct the ConnectFourManager class (done in the onEnable method in the main class)
@@ -20,6 +20,16 @@ public class GameModule implements ServerModule {
         setup();
     }
 
+    public boolean addGame(ConnectFourBoardGame newGame) {
+        for(ConnectFourBoardGame game: connectFourGames) {
+            if(game.equals(newGame)) {
+                return false;
+            }
+        }
+        connectFourGames.add(newGame);
+        return true;
+    }
+
     /**
      * Get the arraylist containing all the current connect four games that are running
      *
@@ -27,7 +37,7 @@ public class GameModule implements ServerModule {
      */
     public ArrayList<ConnectFourBoardGame> getGames() {
 
-        return connectFourBoards;
+        return connectFourGames;
     }
 
     /**
@@ -38,7 +48,7 @@ public class GameModule implements ServerModule {
      */
     public ConnectFourBoardGame getGame(Player player) {
 
-        for(ConnectFourBoardGame game: connectFourBoards) {
+        for(ConnectFourBoardGame game: connectFourGames) {
             if(game.getPlayers().containsKey(player) || game.getPlayers().containsValue(player)) {
                 return game;
             }
@@ -53,7 +63,7 @@ public class GameModule implements ServerModule {
      * @return true if the player is currently in a connect for game, else if otherwise
      */
     public boolean isPlaying(Player player) {
-        for(ConnectFourBoardGame game: connectFourBoards) {
+        for(ConnectFourBoardGame game: connectFourGames) {
             if(game.getPlayers().containsValue(player) || game.getPlayers().containsKey(player)) {
                 return true;
             }
@@ -63,11 +73,11 @@ public class GameModule implements ServerModule {
 
     @Override
     public void setup() {
-        connectFourBoards = new ArrayList<>();
+        connectFourGames = new ArrayList<>();
     }
 
     @Override
     public void teardown() {
-        connectFourBoards.clear();
+        connectFourGames.clear();
     }
 }
