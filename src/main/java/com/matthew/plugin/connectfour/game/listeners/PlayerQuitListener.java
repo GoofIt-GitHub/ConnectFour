@@ -29,7 +29,7 @@ public class PlayerQuitListener implements Listener {
             } else {
                 game.getPlayer1().sendMessage(ChatColor.BLUE + ">> " + ChatColor.GRAY + ChatColor.BOLD + "Game stopped");
             }
-            game.endGame();
+            game.stopGame();
         }
     }
 }

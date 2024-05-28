@@ -17,11 +17,6 @@ import java.util.stream.IntStream;
 
 public abstract class ConnectFourBoard {
 
-    /*
-     Best to use ArrayList here to maintain insertion order
-     */
-    private final List<Player> players;
-
     private List<Block> bottomBlocks;
 
     private List<Block> topBlocks;
@@ -33,8 +28,7 @@ public abstract class ConnectFourBoard {
     private BlockFace direction;
 
 
-    public ConnectFourBoard(Player player1, Player player2) {
-        players = new ArrayList<>(Arrays.asList(player1, player2));
+    public ConnectFourBoard(Player player1) {
         createBoard(player1.getLocation());
     }
 
@@ -44,18 +38,9 @@ public abstract class ConnectFourBoard {
     public abstract void spawnBoard();
 
     /*
-     Mechanic is to implement how the winner will be checked
-     */
-    public abstract boolean checkWinner();
-
-    /*
      Mechanic will implement how the board is to be spawned
      */
     public abstract void destroyBoard();
-
-    public List<Player> getPlayers() {
-        return players;
-    }
 
     public List<Block> getBottomBlocks() {
         return this.bottomBlocks;
@@ -67,8 +52,9 @@ public abstract class ConnectFourBoard {
 
     /**
      * Create the ConnectFour game's playable board (a 7x8 board) starting with the bottom of the board then generating the top >
-     * create the region for where the board is based off of the top and bottom furthest corners from eachother. Region
-     * created using the Cuboid class > spawn both players in front of the board
+     * create the region for where the board is based off of the top and bottom furthest corners from eachother.
+     * Important note, this will not spawn the board or teleport the players, this will only create the board
+     * in memory
      *
      * @param playerLoc - location of where the board is going to spawn (should always be player1's location)
      */
