@@ -26,11 +26,32 @@ public interface Game {
     void placeBlock(Player player, Block blockClicked);
 
     /**
+     * Check if there is a winning sequence. A winning sequence is 4 blocks in a row horizontally, vertically, or diagonally
+     *
+     * @return whether a winning sequence was found
+     */
+    boolean hasWinningSequence();
+
+    /**
      * Send a message to the players in the same game
      *
      * @param message - message for the players which will display in chat
      */
     void sendMessage(String message);
+
+    /**
+     * Get player 1
+     *
+     * @return the player who initiated the creation of the game
+     */
+    Player getPlayer1();
+
+    /**
+     * Get player 2
+     *
+     * @return the player who accepted the invite to play the game
+     */
+    Player getPlayer2();
 
     /**
      * Get all players currently playing the game. Assuming players is not null, there will always be 2

@@ -42,6 +42,11 @@ public class ConnectFourBoardGame implements Game {
         this.mechanic.placeBlock(player, blockClicked);
     }
 
+    @Override
+    public boolean hasWinningSequence() {
+        return this.mechanic.hasWinningSequence();
+    }
+
     /**
      * Send a message to the players in the same game
      *
@@ -50,6 +55,16 @@ public class ConnectFourBoardGame implements Game {
     @Override
     public void sendMessage(String message) {
         this.mechanic.sendMessage(message);
+    }
+
+    @Override
+    public Player getPlayer1() {
+        return this.mechanic.getPlayers().get(0);
+    }
+
+    @Override
+    public Player getPlayer2() {
+        return this.mechanic.getPlayers().get(1);
     }
 
     @Override
@@ -90,23 +105,12 @@ public class ConnectFourBoardGame implements Game {
      */
     @Override
     public void stopGame() {
-        //Remove board
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (Block block : region.getBlocks()) {
-                    block.setType(Material.AIR);
-                }
-                players.remove(player1);
-                GameModule.getGames().remove(GameModule.getGame(player1));
-                cancel();
-            }
-
-        }.runTaskTimer(ConnectFourPlugin.getInstance(), 40L, 0L);
+        //TODO: Remove board after a few seconds and release any additionally allocated resources
+        //Should be able to just remove the game from the game module and garbage collection will do the rest
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -116,12 +120,11 @@ public class ConnectFourBoardGame implements Game {
         }
 
         ConnectFourBoardGame check = (ConnectFourBoardGame) o;
-        return Objects.equals(getPlayers().get(0), check.getPlayers().get(0))
-                && Objects.equals(getPlayers().get(1), check.getPlayers().get(1));
+        return getPlayers().equals(check.getPlayers());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getPlayers().get(0), getPlayers().get(1));
+        return getPlayers().hashCode();
     }
 }

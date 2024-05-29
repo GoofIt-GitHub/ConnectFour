@@ -16,7 +16,7 @@ import java.util.List;
 public class ConnectFourBoardMechanic extends ConnectFourBoard {
 
     /*
-     Best to make players a list to maintain insertion order, therefore player1 is always index 0
+     Best to make players a list to maintain insertion order; therefore, player1 is always index 0
      */
     private final List<Player> players;
 
@@ -26,10 +26,16 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
 
     private Cuboid region;
 
+    /*
+     Whether the game is currently running
+     */
+    private boolean running;
+
     public ConnectFourBoardMechanic(final List<Player> players) {
         super(players.get(0)); //player1 being the location the board is going to spawn
         this.players = players;
         this.winner = null;
+        this.running = false;
     }
 
     @Override
@@ -74,78 +80,53 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
         region = null;
     }
 
-    /**
-     * Place a block in the row of the bottom quartz block that the player has clicked on if there is still room in the row >
-     * set the turn to the player who did not click the block and is in the game > but before the next player goes, check and
-     * see if there is a winner using the checkForWinner private method. If there is a winner call the endGame private method, if not
-     * check and make sure the board isn't full, if it is full then end the game, if not then continue on with the game.
-     *
-     * @param player - the player who is attempting to place a block on the ConnectFour board
-     * @param blockClicked - the bottom quartz block that the player has clicked on
-     */
-    public void placeBlock(Player player, Block blockClicked) {
+    public void placeBlock(final Player player, final Block blockClicked) {
 
-        if(blockClicked.getType().equals(Material.QUARTZ_BLOCK)) {
-            Block checked = blockClicked;
-            boolean finished = false;
+        /*
+         Check if the game is currently running
+         */
+        if(!running) {
+            return;
+        }
 
-            for(int i = 0; i<6; i++) {
-                if(!finished) {
-                    if(checked.getRelative(BlockFace.UP).getType().equals(Material.AIR)) {
-                        if(players.containsKey(player)) {
-                            Block newBlock = checked.getRelative(BlockFace.UP);
-                            newBlock.setType(Material.RED_WOOL);
-                            origin = newBlock;
-                            turn = player2;
-                            player2.sendMessage(ChatColor.BLUE + ">> " + ChatColor.WHITE + ChatColor.BOLD + "Your turn");
+        /*
+         Failsafe, double check that the player is indeed in the game. If not, then return
+         */
+        if (!players.contains(player)) {
+            return;
+        }
 
-                        } else if(players.containsValue(player)) {
-                            Block newBlock = checked.getRelative(BlockFace.UP);
-                            newBlock.setType(Material.YELLOW_WOOL);
-                            origin = newBlock;
-                            turn = player1;
-                            player1.sendMessage(ChatColor.BLUE + ">> " + ChatColor.WHITE + ChatColor.BOLD + "Your turn");
+        /*
+         Make sure that the block clicked was quartz. If it wasn't, the conditional will short circuit so that we don't
+         iterate through the bottom blocks list for no reason. But if the block is quartz, then double check that it is
+         a quartz block that is a part of the bottom row of the connect four board. If not, then return
+         */
+        if (blockClicked.getType() != Material.QUARTZ_BLOCK || !getBottomBlocks().contains(blockClicked)) {
+            return;
+        }
 
-                        }
-                        finished = true;
-                    } else {
-                        checked = checked.getRelative(BlockFace.UP);
+        Block currentBlock = blockClicked;
 
-                    }
-                }
+        //Height of the board is 6 and always will be 6, so it is safe to hard code the height here
+        for (int i = 0; i < 6; i++) {
+            Block blockAbove = currentBlock.getRelative(BlockFace.UP);
+            if (blockAbove.getType() != Material.AIR) {
+                currentBlock = blockAbove;
+                continue;
             }
-            //Check if there is a winner
-            if(mechanic.checkWinner()) {
-                sendMessage(ChatColor.BLUE + ">> " + ChatColor.YELLOW + ChatColor.BOLD + winner.getName() + ChatColor.GRAY + " has won");
-                stopGame();
-            } else {
-                //Check if there is room on the board for another play
-                int availablePlays = 0;
-                for (Block b : mechanic.getRegion().getBlocks()) {
-                    if (b.getType().equals(Material.AIR)) {
-                        availablePlays++;
-                    }
-                }
-                if (availablePlays == 0) {
-                    sendMessage(ChatColor.BLUE + ">> " + ChatColor.YELLOW + ChatColor.BOLD + "Tie!" + ChatColor.GRAY + " Nobody wins");
-                    stopGame();
-                }
-            }
+
+            // Place the correct wool color based on the player
+            Material woolType = isPlayer1(player) ? Material.RED_WOOL : Material.YELLOW_WOOL;
+            blockAbove.setType(woolType);
+
+            // Update the turn to the next player
+            turn = isPlayer1(player) ? players.get(1) : players.get(0);
+
+            break;
         }
     }
 
-    /**
-     * Send a message to the players in the same game
-     *
-     * @param message - message for the players which will display in chat
-     */
-    public void sendMessage(String message) {
-        for (Player player : getPlayers()) {
-            player.sendMessage(message);
-        }
-    }
-
-    private boolean checkWinner() {
+    public boolean hasWinningSequence() {
         for (Block block : getBottomBlocks()) {
 
             // Check in directions based on the orientation of the board
@@ -188,6 +169,42 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
         return false; // No winning sequence found
     }
 
+
+    /**
+     * Send a message to the players in the same game
+     *
+     * @param message - message for the players which will display in chat
+     */
+    public void sendMessage(final String message) {
+        for (Player player : getPlayers()) {
+            player.sendMessage(message);
+        }
+    }
+
+    public List<Player> getPlayers() {
+        return this.players;
+    }
+
+    public Cuboid getRegion() {
+        return this.region;
+    }
+
+    public Player getWinner() {
+        return winner;
+    }
+
+    public Player getTurn() {
+        return turn;
+    }
+
+    public void setTurn(final Player turn) {
+        this.turn = turn;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
     private boolean checkDirection(Block startBlock, int dx, int dy, int dz) {
         Material type = startBlock.getType();
         Location startLocation = startBlock.getLocation();
@@ -209,23 +226,7 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
         return false;
     }
 
-    public List<Player> getPlayers() {
-        return this.players;
-    }
-
-    public Cuboid getRegion() {
-        return this.region;
-    }
-
-    public Player getWinner() {
-        return winner;
-    }
-
-    public Player getTurn() {
-        return turn;
-    }
-
-    public void setTurn(Player turn) {
-        this.turn = turn;
+    private boolean isPlayer1(final Player player) {
+        return players.get(0).equals(player);
     }
 }
