@@ -43,8 +43,8 @@ public class ConnectFourBoardGame implements Game {
     }
 
     @Override
-    public boolean hasWinningSequence() {
-        return this.mechanic.hasWinningSequence();
+    public boolean hasWinningSequence(Player player) {
+        return this.mechanic.hasWinningSequence(player);
     }
 
     /**

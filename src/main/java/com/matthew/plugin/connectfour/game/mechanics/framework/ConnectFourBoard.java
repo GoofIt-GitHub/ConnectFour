@@ -14,53 +14,77 @@ import java.util.stream.IntStream;
 
 public abstract class ConnectFourBoard {
 
+    /**
+     * The bottom row of quartz blocks representing the bottom of the Connect Four board.
+     */
     private List<Block> bottomBlocks;
 
+    /**
+     * The top row of quartz blocks representing the top of the Connect Four board.
+     */
     private List<Block> topBlocks;
 
-    /*
-    The direction the board is facing. The board faces the direction the player was facing when the board was
-    created. (NOT WHEN IT WAS SPAWNED)
+    /**
+     * The direction the board is facing. The board faces the direction the player was facing when the board was
+     * created (NOT WHEN IT WAS SPAWNED).
      */
     private BlockFace direction;
 
-
+    /**
+     * Constructor that initializes the ConnectFourBoard with player1's location.
+     *
+     * @param player1 the player whose location is used to create the board
+     */
     public ConnectFourBoard(Player player1) {
         createBoard(player1.getLocation());
     }
 
-    /*
-     Mechanic will decide when and how to spawn the board
+    /**
+     * Abstract method for spawning the board. Implementation should be provided by the subclass.
      */
     public abstract void spawnBoard();
 
-    /*
-     Mechanic will implement how the board is to be spawned
+    /**
+     * Abstract method for destroying the board. Implementation should be provided by the subclass.
      */
     public abstract void destroyBoard();
 
+    /**
+     * Returns the list of bottom blocks.
+     *
+     * @return list of bottom blocks
+     */
     public List<Block> getBottomBlocks() {
         return this.bottomBlocks;
     }
 
+    /**
+     * Returns the list of top blocks.
+     *
+     * @return list of top blocks
+     */
     public List<Block> getTopBlocks() {
         return this.topBlocks;
     }
 
+    /**
+     * Returns the direction the board is facing.
+     *
+     * @return the direction the board is facing
+     */
     public BlockFace getDirection() {
         return direction;
     }
 
-
     /**
-     * Create the ConnectFour game's playable board (a 7x8 board) starting with the bottom of the board then generating the top >
-     * create the region for where the board is based off of the top and bottom furthest corners from eachother.
-     * Important note, this will not spawn the board or teleport the players, this will only create the board
-     * in memory
+     * Creates the Connect Four game's playable board (a 7x8 board) starting with the bottom of the board then generating the top.
+     * Creates the region for where the board is based off of the top and bottom furthest corners from each other.
+     * This method does not spawn the board or teleport the players, it only creates the board in memory.
      *
-     * @param playerLoc - location of where the board is going to spawn (should always be player1's location)
+     * @param playerLoc the location where the board is going to spawn (should always be player1's location)
      */
     private void createBoard(Location playerLoc) {
+        // Ensure the initial block location is air before creating the board
         if (!playerLoc.getBlock().getType().equals(Material.AIR)) {
             return;
         }
@@ -76,16 +100,17 @@ public abstract class ConnectFourBoard {
         bottomBlocks.add(initialBottomBlock);
 
         // Create the initial top block
-        Location topLocation = initialBottomBlock.getLocation().add(0, 6, 0); //TODO: Might be wrong
+        Location topLocation = initialBottomBlock.getLocation().add(0, 6, 0); // The height is hardcoded to 6
         Block initialTopBlock = topLocation.getBlock();
         topBlocks.add(initialTopBlock);
 
-        // Create the remaining bottom and top blocks
+        // Create the remaining bottom blocks by moving in the direction the player is facing
         bottomBlocks.addAll(IntStream.range(0, 6)
                 .mapToObj(i -> bottomBlocks.get(i).getRelative(direction))
                 .collect(Collectors.toList())
         );
 
+        // Create the remaining top blocks by moving in the direction the player is facing
         topBlocks.addAll(IntStream.range(0, 6)
                 .mapToObj(i -> topBlocks.get(i).getRelative(direction))
                 .collect(Collectors.toList())
