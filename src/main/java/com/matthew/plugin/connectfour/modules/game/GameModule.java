@@ -5,6 +5,7 @@ import com.matthew.plugin.connectfour.game.ConnectFourBoardGame;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class GameModule implements ServerModule {
 
@@ -29,6 +30,19 @@ public class GameModule implements ServerModule {
         connectFourGames.add(newGame);
         return true;
     }
+
+    public boolean removeGame(ConnectFourBoardGame existingGame) {
+        Iterator<ConnectFourBoardGame> iterator = connectFourGames.iterator();
+        while (iterator.hasNext()) {
+            ConnectFourBoardGame game = iterator.next();
+            if (game.equals(existingGame)) {
+                iterator.remove();
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Get the arraylist containing all the current connect four games that are running

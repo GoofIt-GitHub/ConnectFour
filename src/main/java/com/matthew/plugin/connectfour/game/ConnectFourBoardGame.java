@@ -99,14 +99,10 @@ public class ConnectFourBoardGame implements Game {
         this.module.addGame(this);
     }
 
-    /**
-     * End the game by removing the board after 2 seconds so the player who lost can see how they lost > remove the players
-     * from the players hashmap > remove the game from the ConnectFourManager's boards list
-     */
     @Override
     public void stopGame() {
-        //TODO: Remove board after a few seconds and release any additionally allocated resources
-        //Should be able to just remove the game from the game module and garbage collection will do the rest
+        mechanic.destroyBoard();
+        module.removeGame(this);
     }
 
     @Override

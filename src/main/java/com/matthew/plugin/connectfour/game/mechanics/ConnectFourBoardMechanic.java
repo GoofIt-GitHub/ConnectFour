@@ -10,45 +10,43 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class ConnectFourBoardMechanic extends ConnectFourBoard {
 
     /**
-     * List of players currently in the provided connect four game.
-     * Maintains insertion order; player1 is always at index 0.
+     * List of players in the game. Should always be two players
      */
     private final List<Player> players;
 
     /**
-     * Whose turn it is to make their move.
+     * Player who is to place their block
      */
     private Player turn;
 
     /**
-     * The winner of the provided connect four game.
+     * The winner of the game. Null until set otherwise
      */
     private Player winner;
 
     /**
-     * The most recently placed block on the connect four board.
+     * Block that was most recently placed
      */
     private Block recentBlock;
 
     /**
-     * Region as a cuboid used to represent all blocks on the connect four board.
+     * Region containing all the blocks on the board
      */
     private Cuboid region;
 
     /**
-     * Whether the game is currently running.
+     * Condition stating whether the game is running or not
      */
     private boolean running;
 
-    /**
-     * Constructor for initializing the ConnectFourBoardMechanic with a list of players.
-     *
-     * @param players the list of players participating in the game
-     */
     public ConnectFourBoardMechanic(final List<Player> players) {
         super(players.get(0)); // player1 being the location the board is going to spawn
         this.players = players;
@@ -58,139 +56,63 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
     }
 
     /**
-     * Spawns the Connect Four board by setting the types of blocks in the bottom and top rows.
+     * Spawns the Connect Four board by setting the types of blocks in the bottom and top rows,
+     * teleporting players to the board, and creating the board region.
      */
     @Override
     public void spawnBoard() {
-        // Spawn bottom blocks
-        for (Block block : getBottomBlocks()) {
-            block.setType(Material.QUARTZ_BLOCK);
-        }
-
-        // Spawn top blocks
-        for (Block block : getTopBlocks()) {
-            block.setType(Material.QUARTZ_BLOCK);
-        }
-
-        // Determine the spawn location in front of the board
-        Location spawn = getBottomBlocks().get(3).getLocation().add(DirectionUtil.getOffsetForDirection(getDirection()));
-
-        // Create board region
-        Location bottomCorner = getBottomBlocks().get(0).getLocation();
-        Location topCorner = getTopBlocks().get(getTopBlocks().size() - 1).getLocation();
-        this.region = new Cuboid(bottomCorner, topCorner);
-
-        // Teleport players to the spawn location
-        players.get(0).teleport(spawn);
-        players.get(1).teleport(spawn);
+        setupBoardBlocks();
+        teleportPlayers();
+        createBoardRegion();
     }
 
     /**
-     * Destroys the Connect Four board by setting the types of blocks to air and clearing lists.
+     * Destroys the Connect Four board on the main thread by scheduling the removal of blocks after a delay.
      */
     @Override
     public void destroyBoard() {
-        // Set block types to air for bottom blocks
-        getBottomBlocks().forEach(block -> block.setType(Material.AIR));
-
-        // Set block types to air for top blocks
-        getTopBlocks().forEach(block -> block.setType(Material.AIR));
-
-        // Clear lists
-        getBottomBlocks().clear();
-        getTopBlocks().clear();
-
-        // Release any allocated resources associated with the region
-        region.getBlocks().clear();
-        region = null;
+        scheduleDestroyBoard(3000);
     }
 
     /**
      * Places a block on the board for the specified player if the game is running and valid conditions are met.
      *
-     * @param player the player making the move
+     * @param player      the player making the move
      * @param blockClicked the block clicked by the player
      */
     public void placeBlock(final Player player, final Block blockClicked) {
-        // Check if the game is currently running
-        if (!running) {
-            return;
-        }
-
-        // Failsafe, double check that the player is indeed in the game. If not, then return
-        if (!players.contains(player)) {
-            return;
-        }
-
-        // Make sure that the block clicked was quartz and is part of the bottom row of the board. If not, then return
-        if (blockClicked.getType() != Material.QUARTZ_BLOCK || !getBottomBlocks().contains(blockClicked)) {
-            return;
-        }
-
-        Block currentBlock = blockClicked;
-
-        // Height of the board is 6 and always will be 6, so it is safe to hard code the height here
-        for (int i = 0; i < 6; i++) {
-            Block blockAbove = currentBlock.getRelative(BlockFace.UP);
-            if (blockAbove.getType() != Material.AIR) {
-                currentBlock = blockAbove;
-                continue;
-            }
-
-            // Place the correct wool color based on the player
-            Material woolType = isPlayer1(player) ? Material.RED_WOOL : Material.YELLOW_WOOL;
-            blockAbove.setType(woolType);
-            recentBlock = blockAbove;
-
-            // Update the turn to the next player
-            turn = isPlayer1(player) ? players.get(1) : players.get(0);
-
-            break;
+        if (isValidMove(player, blockClicked)) {
+            executeMove(player, blockClicked);
         }
     }
 
     /**
-     * Checks if the specified player has a winning sequence of 4 blocks.
+     * Checks if the specified player has a winning sequence of four blocks.
      *
      * @param player the player to check for a winning sequence
      * @return true if the player has a winning sequence, otherwise false
      */
     public boolean hasWinningSequence(Player player) {
         Material type = isPlayer1(player) ? Material.RED_WOOL : Material.YELLOW_WOOL;
-        BlockFace[] directions;
         BlockFace direction = getDirection();
+        BlockFace[] directions = getPrimaryDirections(direction);
 
-        // Determine the primary directions to check based on the board orientation
-        if (direction == BlockFace.EAST || direction == BlockFace.WEST) {
-            directions = new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH};
-        } else if (direction == BlockFace.NORTH || direction == BlockFace.SOUTH) {
-            directions = new BlockFace[]{BlockFace.WEST, BlockFace.EAST};
-        } else {
-            return false; // Invalid direction
-        }
-
-        // Check in primary, vertical, and diagonal directions
         for (BlockFace dir : directions) {
-            if (checkDirection(dir, type) || checkDirection(dir.getOppositeFace(), type)) {
-                return true;
-            }
-            if (checkDirection(dir, BlockFace.UP, type) || checkDirection(dir, BlockFace.DOWN, type)
-                    || checkDirection(dir.getOppositeFace(), BlockFace.UP, type) || checkDirection(dir.getOppositeFace(), BlockFace.DOWN, type)) {
+            if (checkWinningSequence(dir, type)) {
                 return true;
             }
         }
-        return checkDirection(BlockFace.UP, type) || checkDirection(BlockFace.DOWN, type);
+
+        return checkWinningSequence(BlockFace.UP, type) || checkWinningSequence(BlockFace.DOWN, type);
     }
 
     /**
-     * Sends a message to the players in the same game.
+     * Sends a message to all players in the game.
      *
-     * @param message the message for the players which will display in chat
+     * @param message the message to send
      */
     public void sendMessage(final String message) {
-        for (Player player : getPlayers()) {
-            player.sendMessage(message);
-        }
+        players.forEach(player -> player.sendMessage(message));
     }
 
     /**
@@ -208,7 +130,7 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * @return the list of players
      */
     public List<Player> getPlayers() {
-        return this.players;
+        return players;
     }
 
     /**
@@ -217,13 +139,13 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * @return the cuboid region
      */
     public Cuboid getRegion() {
-        return this.region;
+        return region;
     }
 
     /**
      * Gets the winner of the game.
      *
-     * @return the winner player, or null if there is no winner yet
+     * @return the winning player, or null if there is no winner yet
      */
     public Player getWinner() {
         return winner;
@@ -248,26 +170,103 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
     }
 
     /**
-     * Checks if the specified player is player 1.
-     *
-     * @param player the player to check
-     * @return true if the player is player 1, otherwise false
+     * Sets up the Connect Four board by spawning bottom and top blocks.
      */
-    private boolean isPlayer1(final Player player) {
-        return players.get(0).equals(player);
+    private void setupBoardBlocks() {
+        getBottomBlocks().forEach(block -> block.setType(Material.QUARTZ_BLOCK));
+        getTopBlocks().forEach(block -> block.setType(Material.QUARTZ_BLOCK));
+    }
+
+    /**
+     * Teleports players to the spawn location in front of the board.
+     */
+    private void teleportPlayers() {
+        Location spawn = getBottomBlocks().get(3).getLocation().add(DirectionUtil.getOffsetForDirection(getDirection()));
+        players.forEach(player -> player.teleport(spawn));
+    }
+
+    /**
+     * Creates the cuboid region representing all blocks on the Connect Four board.
+     */
+    private void createBoardRegion() {
+        Location bottomCorner = getBottomBlocks().get(0).getLocation();
+        Location topCorner = getTopBlocks().get(getTopBlocks().size() - 1).getLocation();
+        region = new Cuboid(bottomCorner, topCorner);
+    }
+
+    /**
+     * Checks if a move is valid for the specified player and block.
+     *
+     * @param player      the player making the move
+     * @param blockClicked the block clicked by the player
+     * @return true if the move is valid, otherwise false
+     */
+    private boolean isValidMove(Player player, Block blockClicked) {
+        return running && players.contains(player) && blockClicked.getType() == Material.QUARTZ_BLOCK
+                && getBottomBlocks().contains(blockClicked);
+    }
+
+    /**
+     * Executes a move by placing a block on the board for the specified player.
+     *
+     * @param player      the player making the move
+     * @param blockClicked the block clicked by the player
+     */
+    private void executeMove(Player player, Block blockClicked) {
+        Block currentBlock = blockClicked;
+
+        for (int i = 0; i < 6; i++) {
+            Block blockAbove = currentBlock.getRelative(BlockFace.UP);
+            if (blockAbove.getType() == Material.AIR) {
+                Material woolType = isPlayer1(player) ? Material.RED_WOOL : Material.YELLOW_WOOL;
+                blockAbove.setType(woolType);
+                recentBlock = blockAbove;
+                turn = isPlayer1(player) ? players.get(1) : players.get(0);
+                break;
+            }
+            currentBlock = blockAbove;
+        }
+    }
+
+    /**
+     * Gets the primary directions to check for a winning sequence based on the board's orientation.
+     *
+     * @param direction the board's orientation direction
+     * @return an array of primary directions
+     */
+    private BlockFace[] getPrimaryDirections(BlockFace direction) {
+        if (direction == BlockFace.EAST || direction == BlockFace.WEST) {
+            return new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH};
+        } else if (direction == BlockFace.NORTH || direction == BlockFace.SOUTH) {
+            return new BlockFace[]{BlockFace.WEST, BlockFace.EAST};
+        } else {
+            return new BlockFace[0];
+        }
     }
 
     /**
      * Checks for a winning sequence in a specified direction for a given material type.
      *
      * @param direction the direction to check
-     * @param type the material type to check for
+     * @param type      the material type to check for
+     * @return true if a winning sequence is found, otherwise false
+     */
+    private boolean checkWinningSequence(BlockFace direction, Material type) {
+        return checkDirection(direction, type) || checkDirection(direction.getOppositeFace(), type)
+                || checkDirection(direction, BlockFace.UP, type) || checkDirection(direction, BlockFace.DOWN, type)
+                || checkDirection(direction.getOppositeFace(), BlockFace.UP, type) || checkDirection(direction.getOppositeFace(), BlockFace.DOWN, type);
+    }
+
+    /**
+     * Checks for a winning sequence in a specified direction for a given material type.
+     *
+     * @param direction the direction to check
+     * @param type      the material type to check for
      * @return true if a winning sequence is found, otherwise false
      */
     private boolean checkDirection(BlockFace direction, Material type) {
         int matchesInARow = 1;
 
-        // Traverse in the given direction
         for (int i = 0; i < 3; i++) {
             recentBlock = recentBlock.getRelative(direction);
             if (recentBlock.getType() == type) {
@@ -287,14 +286,13 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * Checks for a winning sequence in a specified diagonal direction and slope for a given material type.
      *
      * @param direction the primary direction to check
-     * @param slope the slope direction to check
-     * @param type the material type to check for
+     * @param slope     the slope direction to check
+     * @param type      the material type to check for
      * @return true if a winning sequence is found, otherwise false
      */
     private boolean checkDirection(BlockFace direction, BlockFace slope, Material type) {
         int matchesInARow = 1;
 
-        // Traverse in the given direction and slope
         for (int i = 0; i < 3; i++) {
             recentBlock = recentBlock.getRelative(direction).getRelative(slope);
             if (recentBlock.getType() == type) {
@@ -308,5 +306,61 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
         }
 
         return false;
+    }
+
+    /**
+     * Schedules the destruction of the Connect Four board after a delay.
+     *
+     * @param delayMillis the delay in milliseconds
+     */
+    private void scheduleDestroyBoard(long delayMillis) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+        scheduler.schedule(() -> {
+            future.complete(null);
+            scheduler.shutdown();
+        }, delayMillis, TimeUnit.MILLISECONDS);
+
+        future.thenRun(() -> runOnMainThread(this::performDestroyBoard));
+    }
+
+    /**
+     * Runs a task on the main thread after a delay.
+     *
+     * @param task the task to run
+     */
+    private void runOnMainThread(Runnable task) {
+        if (Thread.currentThread().getName().equals("main")) {
+            task.run();
+        } else {
+            CompletableFuture.runAsync(task, Executors.newSingleThreadExecutor(r -> {
+                Thread mainThread = new Thread(r);
+                mainThread.setName("main");
+                return mainThread;
+            }));
+        }
+    }
+
+    /**
+     * Performs the destruction of the Connect Four board by setting block types to air and clearing lists.
+     */
+    private void performDestroyBoard() {
+        getBottomBlocks().forEach(block -> block.setType(Material.AIR));
+        getTopBlocks().forEach(block -> block.setType(Material.AIR));
+        getBottomBlocks().clear();
+        getTopBlocks().clear();
+        region.getBlocks().clear();
+        region = null;
+    }
+
+    /**
+     * Checks if the specified player is player 1.
+     *
+     * @param player the player to check
+     * @return true if the player is player 1, otherwise false
+     */
+    private boolean isPlayer1(final Player player) {
+        return players.get(0).equals(player);
     }
 }
