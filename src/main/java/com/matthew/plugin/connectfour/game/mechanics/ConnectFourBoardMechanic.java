@@ -2,12 +2,12 @@ package com.matthew.plugin.connectfour.game.mechanics;
 
 import com.matthew.plugin.connectfour.game.mechanics.framework.ConnectFourBoard;
 import com.matthew.plugin.connectfour.utils.Cuboid;
-import com.matthew.plugin.connectfour.utils.DirectionUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -181,9 +181,19 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * Teleports players to the spawn location in front of the board.
      */
     private void teleportPlayers() {
-        Location spawn = getBottomBlocks().get(3).getLocation().add(DirectionUtil.getOffsetForDirection(getDirection()));
-        players.forEach(player -> player.teleport(spawn));
+        Location spawn = getBottomBlocks().get(3).getLocation().add(0.5, 0, 0.5); // Adjusted spawn location to center of the block
+        Location centerBlock = getBottomBlocks().get(3).getLocation().add(0.5, 0, 0.5); // Center block location
+
+        // Calculate direction to the center block
+        Vector direction = centerBlock.toVector().subtract(spawn.toVector()).normalize();
+
+        // Teleport players and set their direction
+        players.forEach(player -> {
+            player.teleport(spawn);
+            player.getLocation().setDirection(direction);
+        });
     }
+
 
     /**
      * Creates the cuboid region representing all blocks on the Connect Four board.

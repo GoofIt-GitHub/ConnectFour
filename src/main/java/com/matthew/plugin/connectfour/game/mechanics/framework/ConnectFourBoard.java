@@ -84,11 +84,6 @@ public abstract class ConnectFourBoard {
      * @param playerLoc the location where the board is going to spawn (should always be player1's location)
      */
     private void createBoard(Location playerLoc) {
-        // Ensure the initial block location is air before creating the board
-        if (!playerLoc.getBlock().getType().equals(Material.AIR)) {
-            return;
-        }
-
         bottomBlocks = new ArrayList<>();
         topBlocks = new ArrayList<>();
 
@@ -96,7 +91,7 @@ public abstract class ConnectFourBoard {
         this.direction = DirectionUtil.getPlayerFacingDirection(playerLoc);
 
         // Create the initial bottom block
-        Block initialBottomBlock = playerLoc.getBlock();
+        Block initialBottomBlock = playerLoc.getBlock().getLocation().add(0, 1, 0).getBlock();
         bottomBlocks.add(initialBottomBlock);
 
         // Create the initial top block
@@ -104,16 +99,13 @@ public abstract class ConnectFourBoard {
         Block initialTopBlock = topLocation.getBlock();
         topBlocks.add(initialTopBlock);
 
-        // Create the remaining bottom blocks by moving in the direction the player is facing
-        bottomBlocks.addAll(IntStream.range(0, 6)
-                .mapToObj(i -> bottomBlocks.get(i).getRelative(direction))
-                .collect(Collectors.toList())
-        );
-
-        // Create the remaining top blocks by moving in the direction the player is facing
-        topBlocks.addAll(IntStream.range(0, 6)
-                .mapToObj(i -> topBlocks.get(i).getRelative(direction))
-                .collect(Collectors.toList())
-        );
+        for(int i = 0; i<6; i++) {
+            Block block = bottomBlocks.get(i).getRelative(direction.getOppositeFace());
+            bottomBlocks.add(block);
+        }
+        for(int i = 0; i<6; i++) {
+            Block block = topBlocks.get(i).getRelative(direction.getOppositeFace());
+            topBlocks.add(block);
+        }
     }
 }
