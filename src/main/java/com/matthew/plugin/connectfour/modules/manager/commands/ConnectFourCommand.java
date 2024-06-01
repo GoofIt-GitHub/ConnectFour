@@ -42,7 +42,12 @@ public class ConnectFourCommand extends Command {
         Player target = Bukkit.getPlayer(args[0]);
 
         if(target == null) {
-            player.sendMessage(ChatColor.RED + "Player not found");
+            player.sendMessage(ChatColor.RED + "Player not found.");
+            return true;
+        }
+
+        if(target.getName().equals(player.getName())) {
+            player.sendMessage(ChatColor.RED + "Target must not be self.");
             return true;
         }
 
