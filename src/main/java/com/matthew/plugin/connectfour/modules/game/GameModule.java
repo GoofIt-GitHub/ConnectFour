@@ -1,20 +1,29 @@
 package com.matthew.plugin.connectfour.modules.game;
 
+import com.matthew.plugin.connectfour.ConnectFourPlugin;
 import com.matthew.plugin.connectfour.apis.ServerModule;
 import com.matthew.plugin.connectfour.game.ConnectFourBoardGame;
+import com.matthew.plugin.connectfour.game.listeners.ConnectFourListener;
 import com.matthew.plugin.connectfour.modules.manager.commands.ConnectFourCommand;
 import com.matthew.plugin.connectfour.utils.CommandUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
 public class GameModule implements ServerModule {
 
+    private final JavaPlugin plugin;
+
     private ArrayList<ConnectFourBoardGame> connectFourGames;
 
     private Command command;
+
+    private Listener listener;
 
     /**
      * Construct the ConnectFourManager class (done in the onEnable method in the main class)
@@ -22,7 +31,8 @@ public class GameModule implements ServerModule {
      *
      * Games are placed in the arraylist upon execution of the connect four command to start the game
      */
-    public GameModule() {
+    public GameModule(JavaPlugin plugin) {
+        this.plugin = plugin;
         setup();
     }
 
@@ -93,6 +103,9 @@ public class GameModule implements ServerModule {
         connectFourGames = new ArrayList<>();
         this.command = new ConnectFourCommand();
         CommandUtil.register(this.command);
+
+        this.listener = new ConnectFourListener();
+        Bukkit.getPluginManager().registerEvents(listener, this.plugin);
     }
 
     @Override
