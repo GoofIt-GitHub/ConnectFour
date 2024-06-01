@@ -2,11 +2,28 @@ package com.matthew.plugin.connectfour.utils;
 
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public final class DirectionUtil {
 
     private DirectionUtil() {}
+
+    public static void faceLocation(Player player, Location location) {
+        Location playerLocation = player.getLocation();
+        double dx = location.getX() - playerLocation.getX();
+        double dy = location.getY() - (playerLocation.getY() + player.getEyeHeight());
+        double dz = location.getZ() - playerLocation.getZ();
+
+        double distanceXZ = Math.sqrt(dx * dx + dz * dz);
+        float yaw = (float) Math.toDegrees(Math.atan2(dz, dx)) - 90;
+
+        playerLocation.setYaw(yaw);
+        playerLocation.setPitch(0);
+
+        player.teleport(playerLocation);
+    }
+
 
     public static BlockFace getPlayerFacingDirection(Location playerLoc) {
         float yaw = playerLoc.getYaw();

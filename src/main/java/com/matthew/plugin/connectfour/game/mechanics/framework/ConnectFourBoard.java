@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public abstract class ConnectFourBoard {
      * The direction the board is facing. The board faces the direction the player was facing when the board was
      * created (NOT WHEN IT WAS SPAWNED).
      */
-    private BlockFace direction;
+    private BlockFace cardinalDirection;
 
     /**
      * Constructor that initializes the ConnectFourBoard with player1's location.
@@ -73,7 +74,7 @@ public abstract class ConnectFourBoard {
      * @return the direction the board is facing
      */
     public BlockFace getDirection() {
-        return direction;
+        return cardinalDirection;
     }
 
     /**
@@ -88,23 +89,27 @@ public abstract class ConnectFourBoard {
         topBlocks = new ArrayList<>();
 
         // Determine the direction the player is facing
-        this.direction = DirectionUtil.getPlayerFacingDirection(playerLoc);
+        Vector direction = playerLoc.getDirection();
+        this.cardinalDirection = DirectionUtil.getPlayerFacingDirection(playerLoc);
+
+        Location initialBottomBlockLocation = playerLoc.add(direction.multiply(2));
 
         // Create the initial bottom block
-        Block initialBottomBlock = playerLoc.getBlock().getLocation().add(0, 1, 0).getBlock();
+        Block initialBottomBlock = initialBottomBlockLocation.getBlock();
         bottomBlocks.add(initialBottomBlock);
 
         // Create the initial top block
-        Location topLocation = initialBottomBlock.getLocation().add(0, 6, 0); // The height is hardcoded to 6
+        Location topLocation = initialBottomBlockLocation.add(0, 6, 0); // The height is hardcoded to 6
         Block initialTopBlock = topLocation.getBlock();
         topBlocks.add(initialTopBlock);
 
         for(int i = 0; i<6; i++) {
-            Block block = bottomBlocks.get(i).getRelative(direction.getOppositeFace());
+            Block block = bottomBlocks.get(i).getRelative(this.cardinalDirection.getOppositeFace());
             bottomBlocks.add(block);
         }
+
         for(int i = 0; i<6; i++) {
-            Block block = topBlocks.get(i).getRelative(direction.getOppositeFace());
+            Block block = topBlocks.get(i).getRelative(this.cardinalDirection.getOppositeFace());
             topBlocks.add(block);
         }
     }

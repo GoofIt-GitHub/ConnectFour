@@ -2,6 +2,7 @@ package com.matthew.plugin.connectfour.game.mechanics;
 
 import com.matthew.plugin.connectfour.game.mechanics.framework.ConnectFourBoard;
 import com.matthew.plugin.connectfour.utils.Cuboid;
+import com.matthew.plugin.connectfour.utils.DirectionUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -181,16 +182,10 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * Teleports players to the spawn location in front of the board.
      */
     private void teleportPlayers() {
-        Location spawn = getBottomBlocks().get(3).getLocation().add(0.5, 0, 0.5); // Adjusted spawn location to center of the block
-        Location centerBlock = getBottomBlocks().get(3).getLocation().add(0.5, 0, 0.5); // Center block location
-
-        // Calculate direction to the center block
-        Vector direction = centerBlock.toVector().subtract(spawn.toVector()).normalize();
-
-        // Teleport players and set their direction
+        Location spawn = getBottomBlocks().get(getBottomBlocks().size()/2).getLocation().add(0, 1, 0); // Adjusted spawn location to center of the block
         players.forEach(player -> {
             player.teleport(spawn);
-            player.getLocation().setDirection(direction);
+            DirectionUtil.faceLocation(player, getBottomBlocks().get(getBottomBlocks().size()/2).getLocation().add(0, 2, 0));
         });
     }
 
