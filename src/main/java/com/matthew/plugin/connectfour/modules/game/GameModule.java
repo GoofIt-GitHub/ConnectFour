@@ -2,6 +2,9 @@ package com.matthew.plugin.connectfour.modules.game;
 
 import com.matthew.plugin.connectfour.apis.ServerModule;
 import com.matthew.plugin.connectfour.game.ConnectFourBoardGame;
+import com.matthew.plugin.connectfour.modules.manager.commands.ConnectFourCommand;
+import com.matthew.plugin.connectfour.utils.CommandUtil;
+import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -10,6 +13,8 @@ import java.util.Iterator;
 public class GameModule implements ServerModule {
 
     private ArrayList<ConnectFourBoardGame> connectFourGames;
+
+    private Command command;
 
     /**
      * Construct the ConnectFourManager class (done in the onEnable method in the main class)
@@ -86,6 +91,8 @@ public class GameModule implements ServerModule {
     @Override
     public void setup() {
         connectFourGames = new ArrayList<>();
+        this.command = new ConnectFourCommand();
+        CommandUtil.register(this.command);
     }
 
     @Override

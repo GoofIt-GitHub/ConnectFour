@@ -315,12 +315,12 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      */
     private void scheduleDestroyBoard(long delayMillis) {
         CompletableFuture<Void> future = new CompletableFuture<>();
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
-        scheduler.schedule(() -> {
-            future.complete(null);
-            scheduler.shutdown();
-        }, delayMillis, TimeUnit.MILLISECONDS);
+        try (ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1)) {
+            scheduler.schedule(() -> {
+                future.complete(null);
+                scheduler.shutdown();
+            }, delayMillis, TimeUnit.MILLISECONDS);
+        }
 
         future.thenRun(() -> runOnMainThread(this::performDestroyBoard));
     }

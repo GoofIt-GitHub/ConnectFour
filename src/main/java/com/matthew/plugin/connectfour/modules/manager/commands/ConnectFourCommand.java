@@ -2,53 +2,54 @@ package com.matthew.plugin.connectfour.modules.manager.commands;
 
 import com.matthew.plugin.connectfour.game.ConnectFourBoardGame;
 import com.matthew.plugin.connectfour.modules.game.GameModule;
+import com.matthew.plugin.connectfour.modules.manager.ServerModuleManager;
 import org.bukkit.Bukkit;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 
-public class ConnectFourCommand implements CommandExecutor {
+public class ConnectFourCommand extends Command {
 
-    /**
-     * Command - /connectfour (player2)
-     *
-     * If all conditions are met a game of connect four will commence by calling the ConnectFourBoardGame class constructor
-     * and the game will be placed in the static connectFourBoards arraylist in the ConnectFourManager class
-     */
+    private static final String COMMAND_NAME = "connectfour";
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    private final GameModule module;
 
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
+    public ConnectFourCommand() {
+        super(COMMAND_NAME);
+        final ServerModuleManager manager = ServerModuleManager.getInstance();
+        this.module = manager.getRegisteredModule(GameModule.class);
 
-            if (args.length == 1) {
-                Player target = Bukkit.getPlayerExact(args[0]);
-                if(!target.equals(player)) {
-                    if (GameModule.getGame(player) == null) {
-                        if (target.isOnline()) {
-                            if (!GameModule.isPlaying(target)) {
-                                GameModule.getGames().add(new ConnectFourBoardGame(player, target));
-                            } else {
-                                player.sendMessage(ChatColor.BLUE + ">> " + ChatColor.GOLD + target.getName() + ChatColor.GRAY + " is currently in a game");
-                            }
-                        } else {
-                            player.sendMessage(ChatColor.BLUE + ">> " + ChatColor.GRAY + "Player not found");
-                        }
-                    } else {
-                        player.sendMessage(ChatColor.BLUE + ">> " + ChatColor.GRAY + "You are currently in a game");
-                    }
-                } else {
-                    player.sendMessage(ChatColor.BLUE + ">> " + ChatColor.GRAY + "You cannot start a game with yourself");
-                }
-            }
-        }
-
-        return false;
     }
 
+    @Override
+    public boolean execute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
+
+        Player player = sender instanceof Player ? (Player) sender : null;
+
+        if(player == null) {
+            return true;
+        }
+
+        if(args.length != 1) {
+            player.sendMessage(ChatColor.RED + "Invalid usage. /connectfour <player>");
+            return true;
+        }
+
+        Player target = Bukkit.getPlayer(args[0]);
+
+        if(target == null) {
+            player.sendMessage(ChatColor.RED + "Player not found");
+            return true;
+        }
+
+        //TODO: Implement a game invite system so that target can deny or accept game invite
+        ConnectFourBoardGame game = new ConnectFourBoardGame(player, target);
+        game.startGame();
+
+        return true;
+    }
 }

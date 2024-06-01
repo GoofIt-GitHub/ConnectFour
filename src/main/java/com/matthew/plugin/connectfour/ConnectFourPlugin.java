@@ -12,9 +12,12 @@ public final class ConnectFourPlugin extends JavaPlugin {
 
     private static ConnectFourPlugin instance;
 
+    private ServerModuleManager moduleManager;
+
     @Override
     public void onEnable() {
-        final ServerModuleManager moduleManager = ServerModuleManager.getInstance();
+        instance = this;
+        moduleManager = ServerModuleManager.getInstance();
         moduleManager.registerModule(new GameModule());
 
         moduleManager.setup();
@@ -22,16 +25,7 @@ public final class ConnectFourPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-
-    }
-
-    private void registerCommands() {
-        getCommand("connectfour").setExecutor(new ConnectFourCommand());
-    }
-
-    private void registerListeners() {
-        Bukkit.getPluginManager().registerEvents(new PlayerInteractListener(), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(), this);
+        moduleManager.teardown();
     }
 
     public static ConnectFourPlugin getInstance() {
