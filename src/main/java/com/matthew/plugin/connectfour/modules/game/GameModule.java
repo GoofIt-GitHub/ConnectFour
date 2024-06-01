@@ -5,23 +5,22 @@ import com.matthew.plugin.connectfour.apis.ServerModule;
 import com.matthew.plugin.connectfour.game.ConnectFourBoardGame;
 import com.matthew.plugin.connectfour.game.listeners.ConnectFourListener;
 import com.matthew.plugin.connectfour.modules.manager.commands.ConnectFourCommand;
-import com.matthew.plugin.connectfour.utils.CommandUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Objects;
 
 public class GameModule implements ServerModule {
+
+    private final String COMMAND_NAME = "connectfour";
 
     private final JavaPlugin plugin;
 
     private ArrayList<ConnectFourBoardGame> connectFourGames;
-
-    private Command command;
 
     private Listener listener;
 
@@ -101,8 +100,7 @@ public class GameModule implements ServerModule {
     @Override
     public void setup() {
         connectFourGames = new ArrayList<>();
-        this.command = new ConnectFourCommand();
-        CommandUtil.register(this.command);
+        Objects.requireNonNull(plugin.getCommand(COMMAND_NAME)).setExecutor(new ConnectFourCommand());
 
         this.listener = new ConnectFourListener();
         Bukkit.getPluginManager().registerEvents(listener, this.plugin);

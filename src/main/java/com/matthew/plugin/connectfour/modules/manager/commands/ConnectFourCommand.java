@@ -7,27 +7,23 @@ import org.bukkit.Bukkit;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-
-public class ConnectFourCommand extends Command {
-
-    private static final String COMMAND_NAME = "connectfour";
+public class ConnectFourCommand implements CommandExecutor {
 
     private final GameModule module;
 
     public ConnectFourCommand() {
-        super(COMMAND_NAME);
         final ServerModuleManager manager = ServerModuleManager.getInstance();
         this.module = manager.getRegisteredModule(GameModule.class);
 
     }
 
     @Override
-    public boolean execute(@NotNull CommandSender sender, @NotNull String label, @NotNull String[] args) {
-
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         Player player = sender instanceof Player ? (Player) sender : null;
 
         if(player == null) {
