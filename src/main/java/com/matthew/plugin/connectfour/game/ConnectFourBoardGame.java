@@ -5,6 +5,7 @@ import com.matthew.plugin.connectfour.apis.Game;
 import com.matthew.plugin.connectfour.game.mechanics.ConnectFourBoardMechanic;
 import com.matthew.plugin.connectfour.modules.game.GameModule;
 import com.matthew.plugin.connectfour.modules.manager.ServerModuleManager;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -40,10 +41,12 @@ public class ConnectFourBoardGame implements Game {
     @Override
     public void placeBlock(Player player, Block blockClicked) {
         this.mechanic.placeBlock(player, blockClicked);
+        Bukkit.getLogger().info("ran");
     }
 
     @Override
     public boolean hasWinningSequence(Player player) {
+        Bukkit.getLogger().info("ran2");
         return this.mechanic.hasWinningSequence(player);
     }
 
@@ -96,6 +99,7 @@ public class ConnectFourBoardGame implements Game {
     public void startGame() {
         this.mechanic.setTurn(getPlayers().get(0)); //Player 1 starts
         this.mechanic.spawnBoard();
+        this.mechanic.setRunning(true);
         this.module.addGame(this);
     }
 

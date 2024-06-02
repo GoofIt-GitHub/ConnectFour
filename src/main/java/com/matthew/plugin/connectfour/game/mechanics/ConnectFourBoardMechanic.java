@@ -3,6 +3,7 @@ package com.matthew.plugin.connectfour.game.mechanics;
 
 import com.matthew.plugin.connectfour.game.mechanics.framework.ConnectFourBoard;
 import com.matthew.plugin.connectfour.utils.Cuboid;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -90,12 +91,13 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
     /**
      * Places a block on the board for the specified player if the game is running and valid conditions are met.
      *
-     * @param player      the player making the move
+     * @param player       the player making the move
      * @param blockClicked the block clicked by the player
      */
     public void placeBlock(final Player player, final Block blockClicked) {
         if (isValidMove(player, blockClicked)) {
             executeMove(player, blockClicked);
+            Bukkit.getLogger().info("ran3");
         }
     }
 
@@ -111,17 +113,14 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
         BlockFace direction = getDirection();
         BlockFace[] directions = getPrimaryDirections(direction);
 
-
         for (BlockFace dir : directions) {
             if (checkWinningSequence(dir, type)) {
                 return true;
             }
         }
 
-
         return checkWinningSequence(BlockFace.UP, type) || checkWinningSequence(BlockFace.DOWN, type);
     }
-
 
     /**
      * Sends a message to all players in the game.
@@ -192,6 +191,10 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
         this.turn = turn;
     }
 
+    public void setRunning(final boolean running) {
+        this.running = running;
+    }
+
 
     /**
      * Sets up the Connect Four board by spawning bottom and top blocks.
@@ -218,8 +221,6 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
     }
 
 
-
-
     /**
      * Creates the cuboid region representing all blocks on the Connect Four board.
      */
@@ -233,7 +234,7 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
     /**
      * Checks if a move is valid for the specified player and block.
      *
-     * @param player      the player making the move
+     * @param player       the player making the move
      * @param blockClicked the block clicked by the player
      * @return true if the move is valid, otherwise false
      */
@@ -246,12 +247,16 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
     /**
      * Executes a move by placing a block on the board for the specified player.
      *
-     * @param player      the player making the move
+     * @param player       the player making the move
      * @param blockClicked the block clicked by the player
      */
     private void executeMove(Player player, Block blockClicked) {
-        Block currentBlock = blockClicked;
+        if(!turn.equals(player)) {
+            player.sendMessage("Please wait your turn");
+            return;
+        }
 
+        Block currentBlock = blockClicked;
 
         for (int i = 0; i < 6; i++) {
             Block blockAbove = currentBlock.getRelative(BlockFace.UP);
@@ -260,6 +265,7 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
                 blockAbove.setType(woolType);
                 recentBlock = blockAbove;
                 turn = isPlayer1(player) ? players.get(1) : players.get(0);
+                Bukkit.getLogger().info("ran4");
                 break;
             }
             currentBlock = blockAbove;
@@ -306,10 +312,13 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * @return true if a winning sequence is found, otherwise false
      */
     private boolean checkDirection(BlockFace direction, Material type) {
-        int matchesInARow = 1;
+        if (recentBlock == null) {
+            return false;
+        }
 
+        int matchesInARow = 0;
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             recentBlock = recentBlock.getRelative(direction);
             if (recentBlock.getType() == type) {
                 matchesInARow++;
@@ -320,8 +329,6 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
                 break;
             }
         }
-
-
         return false;
     }
 
@@ -335,8 +342,11 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * @return true if a winning sequence is found, otherwise false
      */
     private boolean checkDirection(BlockFace direction, BlockFace slope, Material type) {
-        int matchesInARow = 1;
+        if (recentBlock == null) {
+            return false;
+        }
 
+        int matchesInARow = 1;
 
         for (int i = 0; i < 3; i++) {
             recentBlock = recentBlock.getRelative(direction).getRelative(slope);
@@ -349,8 +359,6 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
                 break;
             }
         }
-
-
         return false;
     }
 

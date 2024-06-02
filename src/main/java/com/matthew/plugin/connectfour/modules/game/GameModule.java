@@ -32,7 +32,6 @@ public class GameModule implements ServerModule {
      */
     public GameModule(JavaPlugin plugin) {
         this.plugin = plugin;
-        setup();
     }
 
     public boolean addGame(ConnectFourBoardGame newGame) {
