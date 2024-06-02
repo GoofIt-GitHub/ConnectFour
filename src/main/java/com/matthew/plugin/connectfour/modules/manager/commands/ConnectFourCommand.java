@@ -47,6 +47,15 @@ public class ConnectFourCommand implements CommandExecutor {
             return true;
         }
 
+        if(module.getGame(target) != null) {
+            player.sendMessage(ChatColor.RED + target.getName() + " is already in a game!");
+            return true;
+        }
+
+        if(module.getGame(player) != null) {
+            player.sendMessage(ChatColor.RED + "You must finish the game you are in before starting another.");
+        }
+
         //TODO: Implement a game invite system so that target can deny or accept game invite
         ConnectFourBoardGame game = new ConnectFourBoardGame(player, target);
         game.startGame();

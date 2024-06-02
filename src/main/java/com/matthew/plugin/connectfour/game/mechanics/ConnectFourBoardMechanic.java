@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -252,11 +251,6 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * @param blockClicked the block clicked by the player
      */
     private void executeMove(Player player, Block blockClicked) {
-        if (!turn.equals(player)) {
-            player.sendMessage("Please wait your turn");
-            return;
-        }
-
         Block currentBlock = blockClicked;
 
         for (int i = 0; i < 6; i++) {
@@ -284,10 +278,10 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
         switch (direction) {
             case EAST:
             case WEST:
-                return new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.DOWN};
+                return new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH};
             case NORTH:
             case SOUTH:
-                return new BlockFace[]{BlockFace.WEST, BlockFace.EAST, BlockFace.DOWN};
+                return new BlockFace[]{BlockFace.WEST, BlockFace.EAST};
             default:
                 return new BlockFace[0];
         }
@@ -302,7 +296,8 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * @return true if a winning sequence is found, otherwise false
      */
     private boolean checkWinningSequence(BlockFace direction, Material type) {
-        return checkDirection(direction, type);
+        return checkDirection(direction, type) || checkDirection(BlockFace.DOWN, type)
+                || checkDirection(direction, BlockFace.DOWN, type) || checkDirection(direction, BlockFace.UP, type);
     }
 
 
@@ -321,7 +316,7 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
         int matchesInARow = 1;
         Block checkedBlock = recentBlock;
 
-        while (matchesInARow < 4) { // Change condition to matchesInARow < 4
+        while (matchesInARow < 4) {
             checkedBlock = checkedBlock.getRelative(direction); // Move to the next block
             if (checkedBlock.getType() == type) {
                 matchesInARow++;
@@ -351,19 +346,21 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
         }
 
         int matchesInARow = 1;
+        Block checkedBlock = recentBlock;
 
-        for (int i = 0; i < 3; i++) {
-            recentBlock = recentBlock.getRelative(direction).getRelative(slope);
-            if (recentBlock.getType() == type) {
+        while (matchesInARow < 4) {
+            checkedBlock = checkedBlock.getRelative(direction).getRelative(slope); // Move to the next block
+            if (checkedBlock.getType() == type) {
                 matchesInARow++;
-                if (matchesInARow == 4) {
-                    return true;
-                }
+                Bukkit.getLogger().info("Matches in a row: " + matchesInARow);
             } else {
                 break;
             }
         }
-        return false;
+
+        Bukkit.getLogger().info("Outside - Matches in a row: " + matchesInARow);
+
+        return matchesInARow == 4;
     }
 
 
