@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -119,7 +120,7 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
             }
         }
 
-        return checkWinningSequence(BlockFace.UP, type) || checkWinningSequence(BlockFace.DOWN, type);
+        return false;
     }
 
     /**
@@ -251,7 +252,7 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * @param blockClicked the block clicked by the player
      */
     private void executeMove(Player player, Block blockClicked) {
-        if(!turn.equals(player)) {
+        if (!turn.equals(player)) {
             player.sendMessage("Please wait your turn");
             return;
         }
@@ -280,12 +281,15 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * @return an array of primary directions
      */
     private BlockFace[] getPrimaryDirections(BlockFace direction) {
-        if (direction == BlockFace.EAST || direction == BlockFace.WEST) {
-            return new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH};
-        } else if (direction == BlockFace.NORTH || direction == BlockFace.SOUTH) {
-            return new BlockFace[]{BlockFace.WEST, BlockFace.EAST};
-        } else {
-            return new BlockFace[0];
+        switch (direction) {
+            case EAST:
+            case WEST:
+                return new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.DOWN};
+            case NORTH:
+            case SOUTH:
+                return new BlockFace[]{BlockFace.WEST, BlockFace.EAST, BlockFace.DOWN};
+            default:
+                return new BlockFace[0];
         }
     }
 
@@ -298,9 +302,7 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * @return true if a winning sequence is found, otherwise false
      */
     private boolean checkWinningSequence(BlockFace direction, Material type) {
-        return checkDirection(direction, type) || checkDirection(direction.getOppositeFace(), type)
-                || checkDirection(direction, BlockFace.UP, type) || checkDirection(direction, BlockFace.DOWN, type)
-                || checkDirection(direction.getOppositeFace(), BlockFace.UP, type) || checkDirection(direction.getOppositeFace(), BlockFace.DOWN, type);
+        return checkDirection(direction, type);
     }
 
 
@@ -316,20 +318,22 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
             return false;
         }
 
-        int matchesInARow = 0;
+        int matchesInARow = 1;
+        Block checkedBlock = recentBlock;
 
-        for (int i = 0; i < 4; i++) {
-            recentBlock = recentBlock.getRelative(direction);
-            if (recentBlock.getType() == type) {
+        while (matchesInARow < 4) { // Change condition to matchesInARow < 4
+            checkedBlock = checkedBlock.getRelative(direction); // Move to the next block
+            if (checkedBlock.getType() == type) {
                 matchesInARow++;
-                if (matchesInARow == 4) {
-                    return true;
-                }
+                Bukkit.getLogger().info("Matches in a row: " + matchesInARow);
             } else {
                 break;
             }
         }
-        return false;
+
+        Bukkit.getLogger().info("Outside - Matches in a row: " + matchesInARow);
+
+        return matchesInARow == 4;
     }
 
 

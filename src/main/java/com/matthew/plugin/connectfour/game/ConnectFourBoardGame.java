@@ -105,7 +105,7 @@ public class ConnectFourBoardGame implements Game {
 
     @Override
     public void stopGame() {
-        mechanic.destroyBoard();
+        //mechanic.destroyBoard();
         module.removeGame(this);
     }
 
