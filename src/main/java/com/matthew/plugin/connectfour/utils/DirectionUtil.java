@@ -2,6 +2,7 @@ package com.matthew.plugin.connectfour.utils;
 
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public final class DirectionUtil {
