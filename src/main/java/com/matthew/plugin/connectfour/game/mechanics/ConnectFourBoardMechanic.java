@@ -208,10 +208,8 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
     private void teleportPlayers() {
         Vector direction = players.get(0).getLocation().getDirection();
 
-
         Location spawn = getBottomBlocks().get(0).getLocation().add(0.5, 1, 0.5); // Adjusted spawn location to center of the block
         spawn.setDirection(direction);
-
 
         // Teleport players and set their direction
         players.forEach(player -> {
@@ -417,4 +415,3 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
         return players.get(0).equals(player);
     }
 }
-
