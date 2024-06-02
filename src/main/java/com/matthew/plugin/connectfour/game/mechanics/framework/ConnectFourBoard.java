@@ -1,6 +1,7 @@
 package com.matthew.plugin.connectfour.game.mechanics.framework;
 
 import com.matthew.plugin.connectfour.utils.DirectionUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -90,22 +91,45 @@ public abstract class ConnectFourBoard {
         // Determine the direction the player is facing
         this.direction = DirectionUtil.getPlayerFacingDirection(playerLoc);
 
-        // Create the initial bottom block
         Block initialBottomBlock = playerLoc.getBlock().getLocation().add(0, 1, 0).getBlock();
         bottomBlocks.add(initialBottomBlock);
 
-        // Create the initial top block
         Location topLocation = initialBottomBlock.getLocation().add(0, 6, 0); // The height is hardcoded to 6
         Block initialTopBlock = topLocation.getBlock();
         topBlocks.add(initialTopBlock);
 
-        for(int i = 0; i<6; i++) {
-            Block block = bottomBlocks.get(i).getRelative(direction.getOppositeFace());
-            bottomBlocks.add(block);
+        // Determine the horizontal faces to use based on the player's facing direction
+        BlockFace[] horizontalFaces = getHorizontalFaces(this.direction);
+        if (horizontalFaces == null) {
+            return; // Exit if direction is not recognized
         }
-        for(int i = 0; i<6; i++) {
-            Block block = topBlocks.get(i).getRelative(direction.getOppositeFace());
-            topBlocks.add(block);
+
+        // Generate blocks in the specified directions
+        for (BlockFace face : horizontalFaces) {
+            generateBlocks(initialBottomBlock, initialTopBlock, face);
+        }
+    }
+
+    private BlockFace[] getHorizontalFaces(BlockFace direction) {
+        switch(direction) {
+            case NORTH:
+            case SOUTH:
+                return new BlockFace[] {BlockFace.EAST, BlockFace.WEST};
+            case EAST:
+            case WEST:
+                return new BlockFace[] {BlockFace.NORTH, BlockFace.SOUTH};
+            default:
+                return null; // Exit if direction is not recognized
+        }
+    }
+
+    private void generateBlocks(Block initialBottomBlock, Block initialTopBlock, BlockFace face) {
+        for (int i = 0; i < 3; i++) {
+            Block bottomBlock = (i == 0) ? initialBottomBlock.getRelative(face) : bottomBlocks.get(bottomBlocks.size() - 1).getRelative(face);
+            Block topBlock = (i == 0) ? initialTopBlock.getRelative(face) : topBlocks.get(topBlocks.size() - 1).getRelative(face);
+
+            bottomBlocks.add(bottomBlock);
+            topBlocks.add(topBlock);
         }
     }
 }

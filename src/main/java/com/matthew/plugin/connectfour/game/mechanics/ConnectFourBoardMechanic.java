@@ -181,16 +181,14 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * Teleports players to the spawn location in front of the board.
      */
     private void teleportPlayers() {
-        Location spawn = getBottomBlocks().get(3).getLocation().add(0.5, 0, 0.5); // Adjusted spawn location to center of the block
-        Location centerBlock = getBottomBlocks().get(3).getLocation().add(0.5, 0, 0.5); // Center block location
+        Vector direction = players.get(0).getLocation().getDirection();
 
-        // Calculate direction to the center block
-        Vector direction = centerBlock.toVector().subtract(spawn.toVector()).normalize();
+        Location spawn = getBottomBlocks().get(0).getLocation().add(0.5, 1, 0.5); // Adjusted spawn location to center of the block
+        spawn.setDirection(direction);
 
         // Teleport players and set their direction
         players.forEach(player -> {
             player.teleport(spawn);
-            player.getLocation().setDirection(direction);
         });
     }
 
