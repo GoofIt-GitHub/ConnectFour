@@ -2,9 +2,7 @@ package com.matthew.plugin.connectfour.game.mechanics.framework;
 
 
 import com.matthew.plugin.connectfour.utils.DirectionUtil;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -12,8 +10,6 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 public abstract class ConnectFourBoard {
@@ -121,7 +117,6 @@ public abstract class ConnectFourBoard {
             return; // Exit if direction is not recognized
         }
 
-
         // Generate blocks in the specified directions
         for (BlockFace face : horizontalFaces) {
             generateBlocks(initialBottomBlock, initialTopBlock, face);
@@ -147,7 +142,6 @@ public abstract class ConnectFourBoard {
         for (int i = 0; i < 3; i++) {
             Block bottomBlock = (i == 0) ? initialBottomBlock.getRelative(face) : bottomBlocks.get(bottomBlocks.size() - 1).getRelative(face);
             Block topBlock = (i == 0) ? initialTopBlock.getRelative(face) : topBlocks.get(topBlocks.size() - 1).getRelative(face);
-
 
             bottomBlocks.add(bottomBlock);
             topBlocks.add(topBlock);

@@ -34,6 +34,11 @@ public class ConnectFourListener implements Listener {
             return;
         }
 
+        // Ensure the interaction is done with the main hand
+        if (event.getHand() == EquipmentSlot.OFF_HAND) {
+            return;
+        }
+
         if (!module.getGame(player).getTurn().equals(player)) {
             player.sendMessage("Please wait your turn");
             return;
@@ -41,11 +46,6 @@ public class ConnectFourListener implements Listener {
 
         // Check if the interaction is a right-click on a block
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
-            return;
-        }
-
-        // Ensure the interaction is done with the main hand
-        if (event.getHand() == EquipmentSlot.OFF_HAND) {
             return;
         }
 

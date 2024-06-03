@@ -1,6 +1,7 @@
 package com.matthew.plugin.connectfour.game.mechanics;
 
 
+import com.matthew.plugin.connectfour.ConnectFourPlugin;
 import com.matthew.plugin.connectfour.game.mechanics.framework.ConnectFourBoard;
 import com.matthew.plugin.connectfour.utils.Cuboid;
 import org.bukkit.Bukkit;
@@ -9,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 
@@ -225,8 +227,8 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * Creates the cuboid region representing all blocks on the Connect Four board.
      */
     private void createBoardRegion() {
-        Location bottomCorner = getBottomBlocks().get(0).getLocation();
-        Location topCorner = getTopBlocks().get(getTopBlocks().size() - 1).getLocation();
+        Location bottomCorner = getBottomBlocks().get(getBottomBlocks().size() - 1).getLocation();
+        Location topCorner = getTopBlocks().get(getTopBlocks().size() / 2).getLocation();
         region = new Cuboid(bottomCorner, topCorner);
     }
 
@@ -260,7 +262,6 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
                 blockAbove.setType(woolType);
                 recentBlock = blockAbove;
                 turn = isPlayer1(player) ? players.get(1) : players.get(0);
-                Bukkit.getLogger().info("ran4");
                 break;
             }
             currentBlock = blockAbove;
@@ -309,34 +310,14 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * @return true if a winning sequence is found, otherwise false
      */
     private boolean checkDirection(BlockFace direction, Material type) {
-        if (recentBlock == null) {
-            return false;
-        }
-
-        int matchesInARow = 1;
-        Block checkedBlock = recentBlock;
-
-        while (matchesInARow < 4) {
-            checkedBlock = checkedBlock.getRelative(direction); // Move to the next block
-            if (checkedBlock.getType() == type) {
-                matchesInARow++;
-                Bukkit.getLogger().info("Matches in a row: " + matchesInARow);
-            } else {
-                break;
-            }
-        }
-
-        Bukkit.getLogger().info("Outside - Matches in a row: " + matchesInARow);
-
-        return matchesInARow == 4;
+        return checkDirection(direction, null, type);
     }
-
 
     /**
      * Checks for a winning sequence in a specified diagonal direction and slope for a given material type.
      *
      * @param direction the primary direction to check
-     * @param slope     the slope direction to check
+     * @param slope     the slope direction to check, can be null for single direction check
      * @param type      the material type to check for
      * @return true if a winning sequence is found, otherwise false
      */
@@ -349,20 +330,19 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
         Block checkedBlock = recentBlock;
 
         while (matchesInARow < 4) {
-            checkedBlock = checkedBlock.getRelative(direction).getRelative(slope); // Move to the next block
+            checkedBlock = checkedBlock.getRelative(direction);
+            if (slope != null) {
+                checkedBlock = checkedBlock.getRelative(slope);
+            }
             if (checkedBlock.getType() == type) {
                 matchesInARow++;
-                Bukkit.getLogger().info("Matches in a row: " + matchesInARow);
             } else {
                 break;
             }
         }
 
-        Bukkit.getLogger().info("Outside - Matches in a row: " + matchesInARow);
-
         return matchesInARow == 4;
     }
-
 
     /**
      * Schedules the destruction of the Connect Four board after a delay.
@@ -370,36 +350,8 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
      * @param delayMillis the delay in milliseconds
      */
     private void scheduleDestroyBoard(long delayMillis) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        try (ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1)) {
-            scheduler.schedule(() -> {
-                future.complete(null);
-                scheduler.shutdown();
-            }, delayMillis, TimeUnit.MILLISECONDS);
-        }
-
-
-        future.thenRun(() -> runOnMainThread(this::performDestroyBoard));
+        Bukkit.getScheduler().runTaskLater(JavaPlugin.getPlugin(ConnectFourPlugin.class), this::performDestroyBoard, delayMillis / 50);
     }
-
-
-    /**
-     * Runs a task on the main thread after a delay.
-     *
-     * @param task the task to run
-     */
-    private void runOnMainThread(Runnable task) {
-        if (Thread.currentThread().getName().equals("main")) {
-            task.run();
-        } else {
-            CompletableFuture.runAsync(task, Executors.newSingleThreadExecutor(r -> {
-                Thread mainThread = new Thread(r);
-                mainThread.setName("main");
-                return mainThread;
-            }));
-        }
-    }
-
 
     /**
      * Performs the destruction of the Connect Four board by setting block types to air and clearing lists.
@@ -409,6 +361,7 @@ public class ConnectFourBoardMechanic extends ConnectFourBoard {
         getTopBlocks().forEach(block -> block.setType(Material.AIR));
         getBottomBlocks().clear();
         getTopBlocks().clear();
+        region.getBlocks().forEach(block -> block.setType(Material.AIR));
         region.getBlocks().clear();
         region = null;
     }
